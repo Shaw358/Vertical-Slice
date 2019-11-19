@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class bird : MonoBehaviour
 {
+    private SlingShotLine slingShotLine;
     [SerializeField] private bool isPressed;
 
     private float releaseDelay;
@@ -13,8 +14,12 @@ public class bird : MonoBehaviour
     [SerializeField] private SpringJoint2D sj;
     [SerializeField] private Rigidbody2D slingRb;
 
+    [SerializeField] private GameObject bird1;
+    [SerializeField] private GameObject bird2;
+
     private void Awake()
     {
+        slingShotLine = GameObject.Find("SlingShot").GetComponent<SlingShotLine>();
         rb = GetComponent<Rigidbody2D>();
         sj = GetComponent<SpringJoint2D>();
         sj.connectedBody = GameObject.Find("CentrePoint").GetComponent<Rigidbody2D>();
@@ -24,7 +29,11 @@ public class bird : MonoBehaviour
 
     private void Start()
     {
+        slingShotLine.setCurrentBird(gameObject);
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
         releaseDelay = 1 / (sj.frequency * 4);
+
+        slingShotLine.setLineRendererActive(true);
 
         isPressed = false;
     }
@@ -55,6 +64,7 @@ public class bird : MonoBehaviour
 
     private void OnMouseDown()
     {
+        rb.constraints = RigidbodyConstraints2D.None;
         isPressed = true;
         rb.isKinematic = true;
     }
@@ -69,6 +79,8 @@ public class bird : MonoBehaviour
     private IEnumerator Release()
     {
         yield return new WaitForSeconds(releaseDelay);
+        slingShotLine.setLineRendererActive(false);
         sj.enabled = false;
+        slingShotLine.setBird(bird1);
     }
 }
